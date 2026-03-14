@@ -31,7 +31,7 @@ const numberField = (min: number, max: number, label: string) =>
   z.preprocess(
     toNumber,
     z
-      .number({ invalid_type_error: `${label} must be a number.` })
+      .number({ message: `${label} must be a number.` })
       .min(min, `${label} must be at least ${min}.`)
       .max(max, `${label} must be at most ${max}.`)
   );
@@ -285,3 +285,4 @@ export function VitalSignForm() {
     </>
   );
 }
+
