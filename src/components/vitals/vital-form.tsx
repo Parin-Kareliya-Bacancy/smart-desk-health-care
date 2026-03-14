@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { type Resolver, useForm } from "react-hook-form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,14 +27,18 @@ const toNumber = (value: unknown) => {
   return Number.isNaN(parsed) ? value : parsed;
 };
 
-const numberField = (min: number, max: number, label: string) =>
+const numberField = (
+  min: number,
+  max: number,
+  label: string
+): z.ZodType<number> =>
   z.preprocess(
     toNumber,
     z
       .number({ message: `${label} must be a number.` })
       .min(min, `${label} must be at least ${min}.`)
       .max(max, `${label} must be at most ${max}.`)
-  );
+  ) as z.ZodType<number>;
 
 const vitalSchema = z
   .object({
@@ -69,6 +73,8 @@ type VitalFormValues = z.infer<typeof vitalSchema>;
 
 type StatusState = { type: "error"; message: string } | null;
 
+const resolver = zodResolver(vitalSchema) as unknown as Resolver<VitalFormValues>;
+
 export function VitalSignForm() {
   const { addVital } = useVitals(patientId);
   const [status, setStatus] = useState<StatusState>(null);
@@ -81,7 +87,7 @@ export function VitalSignForm() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<VitalFormValues>({
-    resolver: zodResolver(vitalSchema),
+    resolver,
   });
 
   useEffect(() => {
@@ -285,4 +291,6 @@ export function VitalSignForm() {
     </>
   );
 }
+
+
 
